@@ -135,3 +135,4 @@ C:\Users\garri\Documents\Projects\MedicAppAPI\MedicAppAPI\obj\Debug\net8.0\Medic
 C:\Users\garri\Documents\Projects\MedicAppAPI\MedicAppAPI\obj\Debug\net8.0\MedicAppAPI.genruntimeconfig.cache
 C:\Users\garri\Documents\Projects\MedicAppAPI\MedicAppAPI\obj\Debug\net8.0\ref\MedicAppAPI.dll
 C:\Users\garri\Documents\Projects\MedicAppAPI\MedicAppAPI\bin\Debug\net8.0\appsettings - example.json
+C:\Users\garri\Documents\Projects\MedicAppAPI\MedicAppAPI\obj\Debug\net8.0\MedicAppAPI.sourcelink.json
