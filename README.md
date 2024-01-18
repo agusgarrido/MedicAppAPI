@@ -8,6 +8,9 @@ MedicAppAPI, la API de reserva de turnos médicos diseñada para ayudarte a gestio
 ### Segunda versión:
 - Agregar, editar o eliminar médicos y/o especialidades.
 
+### Tercera versión:
+- Obtener, agregar, editar o eliminar pacientes.
+
 ## Endpoints
 
 ### Obtener todos los médicos (V1)
@@ -69,3 +72,34 @@ MedicAppAPI, la API de reserva de turnos médicos diseñada para ayudarte a gestio
 -   **Método:** DELETE
 -   **Parámetros:**
 	- `{especialidadId}`: ID de la especialidad que desea eliminar.
+
+### Obtener todos los pacientes (V3)
+
+-   **Endpoint:** `/api/Paciente/`
+-   **Método:** GET
+
+### Obtener paciente por DNI (V3)
+
+-   **Endpoint:** `/api/Paciente/buscar/{pacienteDNI}`
+-   **Método:** GET
+-   **Parámetros:**
+	- `{pacienteDNI}`: ID del paciente que desea buscar.
+
+### Agregar paciente (V3)
+
+-   **Endpoint:** `/api/Paciente/agregar/`
+-   **Método:** POST
+
+### Editar paciente (V3)
+
+-   **Endpoint:** `/api/Paciente/editar/{pacienteDNI}`
+-   **Método:** PUT
+-   **Parámetros:**
+	- `{pacienteDNI}`: DNI del paciente que desea editar.
+
+### Eliminar paciente (V3)
+
+-   **Endpoint:** `/api/Paciente/eliminar/{pacienteDNI}`
+-   **Método:** DELETE
+-   **Parámetros:**
+	- `{pacienteDNI}`: DNI del paciente que desea eliminar.

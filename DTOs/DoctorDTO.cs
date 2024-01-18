@@ -1,4 +1,5 @@
 ﻿using MedicAppAPI.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MedicAppAPI.DTOs
@@ -31,9 +32,11 @@ namespace MedicAppAPI.DTOs
 
     public class DoctorInputDTO
     {
-
+        [Required(ErrorMessage = "El campo nombre es obligatorio.")]
         public string Nombre{ get; set; }
+        [Required(ErrorMessage = "El campo apellido es obligatorio.")]
         public string Apellido { get; set; }
+        [Required(ErrorMessage = "El campo especialidad es obligatorio.")]
         public string Especialidad { get; set; }
 
     }

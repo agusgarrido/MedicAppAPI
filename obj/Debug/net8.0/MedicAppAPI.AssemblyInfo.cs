@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MedicAppAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63e4f3b8d5b1365827b3a7ea111e84f86b33b33b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9858496914362698446a4adae4e6a1c586243798")]
 [assembly: System.Reflection.AssemblyProductAttribute("MedicAppAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MedicAppAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

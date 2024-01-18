@@ -38,5 +38,17 @@ namespace MedicAppAPI.Services
                 e.Nombre.ToLower().Replace(" ", "-") == nombreEspecialidad.ToLower().Replace(" ", "-")
                 );
         }
+
+        public async Task<bool> PacienteExiste(string dni)
+        {
+            return await _db.Pacientes
+                .AnyAsync(p => p.DNI == dni);
+        }
+
+        public async Task<Paciente> ObtenerPaciente(string dni)
+        {
+            return await _db.Pacientes
+                .SingleOrDefaultAsync(p => p.DNI == dni);
+        }
     }
 }

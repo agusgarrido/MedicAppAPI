@@ -90,7 +90,7 @@ namespace MedicAppAPI.Controllers
 
         // EDITAR MÉDICO
         [HttpPut("editar/{doctorId}")]
-        public async Task<ActionResult<DoctorDTO>> PutDoctor(int doctorId, [FromBody] EditarDoctorDTO doctorEditado)
+        public async Task<ActionResult<DoctorDTO>> PutDoctor(int doctorId, [FromBody] EditarDoctorDTO doctor)
         {
             var doctorExistente = await _db.Doctores.FindAsync(doctorId);
             if (doctorExistente is null)
@@ -98,20 +98,17 @@ namespace MedicAppAPI.Controllers
                 return NotFound("El doctor no existe.");
             }
 
-            var registroEditado = new EditarDoctorDTO
-            {
-                Nombre = doctorEditado.Nombre,
-                Apellido = doctorEditado.Apellido
-            };
+            doctorExistente.Nombre = doctor.Nombre;
+            doctorExistente.Apellido = doctor.Apellido;
 
             await _db.SaveChangesAsync();
 
-            return Ok($"Doctor actualizado: '{registroEditado.Apellido}, {registroEditado.Nombre}'");
+            return Ok($"Doctor actualizado: '{doctor.Apellido}, {doctor.Nombre}'");
         }
 
         // EDITAR ESPECIALIDAD MÉDICO
         [HttpPut("editar-especialidad/{doctorId}")]
-        public async Task<ActionResult<DoctorDTO>> PutEspecialidadDoctor(int doctorId, [FromBody] EditarEspecialidadDTO doctorEditado)
+        public async Task<ActionResult<DoctorDTO>> PutEspecialidadDoctor(int doctorId, [FromBody] EditarEspecialidadDTO doctor)
         {
             var doctorExistente = await _db.Doctores.FindAsync(doctorId);
             if (doctorExistente is null)
@@ -119,20 +116,17 @@ namespace MedicAppAPI.Controllers
                 return NotFound("El doctor no existe.");
             }
 
-            bool especialidadExiste = await _dataVerifier.EspecialidadExiste(doctorEditado.Especialidad);
+            bool especialidadExiste = await _dataVerifier.EspecialidadExiste(doctor.Especialidad);
             if (!especialidadExiste)
             {
-                return BadRequest($"La especialidad '{doctorEditado.Especialidad}' no existe.");
+                return BadRequest($"La especialidad '{doctor.Especialidad}' no existe.");
             }
 
-            var registroEditado = new EditarEspecialidadDTO
-            {
-                Especialidad = doctorEditado.Especialidad,
-            };
+            doctorExistente.Especialidad.Nombre = doctor.Especialidad;
 
             await _db.SaveChangesAsync();
 
-            return Ok($"Especialidad actualizada: '{registroEditado.Especialidad}'");
+            return Ok($"Especialidad actualizada: '{doctor.Especialidad}'");
         }
 
         // ELIMINAR MÉDICO

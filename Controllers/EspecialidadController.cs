@@ -60,20 +60,19 @@ namespace MedicAppAPI.Controllers
 
         // EDITAR ESPECIALIDAD
         [HttpPut("editar/{especialidadId}")]
-        public async Task<ActionResult> PutEspecialidad(int especialidadId, [FromBody] EspecialidadDTO especialidadEditada)
+        public async Task<ActionResult> PutEspecialidad(int especialidadId, [FromBody] EspecialidadDTO especialidad)
         {
             var especialidadExistente = await _db.Especialidades.FindAsync(especialidadId);
             if (especialidadExistente is null)
             {
                 return NotFound("La especialidad no existe.");
             }
-            var registroEditado = new EspecialidadDTO
-            {
-                Nombre = especialidadEditada.Nombre
-            };
+
+            especialidadExistente.Nombre = especialidad.Nombre;
+            
             await _db.SaveChangesAsync();
 
-            return Ok($"Especialidad editada: {registroEditado.Nombre}");
+            return Ok($"Especialidad editada: {especialidad.Nombre}");
         }
         
         // ELIMINAR ESPECIALIDAD
