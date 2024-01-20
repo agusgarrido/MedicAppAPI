@@ -11,6 +11,6 @@ namespace MedicAppAPI.Models
         [ForeignKey("Especialidad")]
         public int EspecialidadID { get; set; }
         public Especialidad Especialidad {  get; set; }
-
+        public ICollection<Horario> Horarios { get; set; }
     }
 }

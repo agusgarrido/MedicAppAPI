@@ -103,3 +103,38 @@ MedicAppAPI, la API de reserva de turnos médicos diseñada para ayudarte a gestio
 -   **Método:** DELETE
 -   **Parámetros:**
 	- `{pacienteDNI}`: DNI del paciente que desea eliminar.
+
+### Obtener todos los horarios agrupados por médico (V4)
+
+-   **Endpoint:** `/api/Horario/`
+-   **Método:** GET
+
+### Filtrar horarios por médico (V4)
+
+-   **Endpoint:** `/api/Horario/filtrar-doctor/{doctorID}`
+-   **Método:** GET
+-   **Parámetros:**
+	- `{doctorID}`: ID del doctor que desea buscar.
+
+### Agregar horario (V4)
+
+-   **Endpoint:** `/api/Horario/agregar/{doctorID}`
+-   **Método:** POST
+-   **Parámetros:**
+	- `{doctorID}`: ID del doctor al cuál desea agregar un nuevo día y horario de atención.
+
+### Editar horario (V4)
+
+-   **Endpoint:** `/api/Horario/editar/{doctorID}/{dia}`
+-   **Método:** PATCH
+-   **Parámetros:**
+	- `{doctorID}`: ID del doctor al cuál desea editar su dia y/u horario de atención.
+	- `{dia}`: Día específico que deseas editar del horario del médico.
+
+### Eliminar horario (V4)
+
+-   **Endpoint:** `/api/Horario/eliminar/{doctorID}/{dia}`
+-   **Método:** DELETE
+-   **Parámetros:**
+	- `{doctorID}`: ID del doctor al cuál desea eliminar un día y horario de atención.
+	- `{dia}`: Día específico que deseas eliminar del horario del médico.

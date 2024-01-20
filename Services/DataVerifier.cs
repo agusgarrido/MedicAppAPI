@@ -50,5 +50,28 @@ namespace MedicAppAPI.Services
             return await _db.Pacientes
                 .SingleOrDefaultAsync(p => p.DNI == dni);
         }
+
+        public async Task<bool> DiaYaAgendado(int doctorID, int dia)
+        {
+            //Dias diaEnum = (Dias)Enum.Parse(typeof(Dias), dia, true);
+            return await _db.Horarios.AnyAsync(h =>
+                h.DoctorID == doctorID && (int)h.Dia == dia);
+        }
+
+        public bool EsDiaValido(int dia)
+        {
+            return Enum.IsDefined(typeof(Dias), dia);
+        }
+
+        public string Capitalizar(string dia)
+        {
+            return char.ToUpper(dia[0]) + dia[1..].ToLower();
+        }
+
+        public async Task<Horario> ObtenerHorario(int doctorID, int dia)
+        {
+            return await _db.Horarios
+                .SingleOrDefaultAsync(h => h.DoctorID == doctorID && (int)h.Dia == dia);
+        }
     }
 }

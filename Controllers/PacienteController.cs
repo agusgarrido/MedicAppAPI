@@ -121,6 +121,8 @@ namespace MedicAppAPI.Controllers
             return Ok($"Paciente DNI {registro.DNI} actualizado.");
         }
 
+        // ELIMINAR UN PACIENTE
+
         [HttpDelete("eliminar/{pacienteDNI}")]
         public async Task<ActionResult> DeletePaciente(string pacienteDNI)
         {
@@ -130,7 +132,8 @@ namespace MedicAppAPI.Controllers
                 return NotFound("El paciente no existe.");
             }
             _db.Pacientes.Remove(pacienteExistente);
-            _db.SaveChangesAsync();
+            
+            await _db.SaveChangesAsync();
 
             return NoContent();
         }

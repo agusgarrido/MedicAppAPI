@@ -14,7 +14,7 @@ namespace MedicAppAPI.Data
         public DbSet<Doctor> Doctores { get; set; }
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<Especialidad> Especialidades { get; set; }
-
+        public DbSet<Horario> Horarios { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Paciente>()
@@ -37,6 +37,14 @@ namespace MedicAppAPI.Data
                 .HasData(
                 new Doctor { DoctorID = 1, Nombre = "Carlos", Apellido = "Pérez", EspecialidadID = 1}
                 );
+
+            modelBuilder.Entity<Horario>()
+                .HasOne(h => h.Doctor)
+                .WithMany(d  => d.Horarios)
+                .HasForeignKey(h => h.DoctorID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
