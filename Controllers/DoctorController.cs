@@ -8,6 +8,7 @@ using MedicAppAPI.Controllers;
 using MedicAppAPI.Services;
 using System.Numerics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using MedicAppAPI.Interfaces;
 
 namespace MedicAppAPI.Controllers
 {
@@ -18,129 +19,57 @@ namespace MedicAppAPI.Controllers
 
         private readonly MedicAppDb _db;
         private readonly DataVerifier _dataVerifier;
+        private readonly IDoctor _doctorService;
 
-        public DoctorController(MedicAppDb db, DataVerifier dataVerifier)
+        public DoctorController(MedicAppDb db, DataVerifier dataVerifier, IDoctor doctorService)
         {
             _db = db;
             _dataVerifier = dataVerifier;
+            _doctorService = doctorService;
         }
-
-        // OBTENER TODOS
 
         [HttpGet]
-        public async Task<ActionResult<List<DoctorDTO>>> GetAllAsync()
+        public async Task<IActionResult> ObtenerTodos()
         {
-            var doctores = await _db.Doctores
-                .Include(d => d.Especialidad)
-                .Select(d => new DoctorDTO
-                {
-                    DoctorID = d.DoctorID,
-                    NombreCompleto = $"{d.Apellido}, {d.Nombre}",
-                    Especialidad = d.Especialidad.Nombre
-                })
-                .ToListAsync();
-            return Ok(doctores);
+            return Ok(await _doctorService.ObtenerTodosAsync());
         }
 
-        // OBTENER POR ESPECIALIDAD
-
-        [HttpGet("filtrar-especialidad/{especialidad}")]
-        public async Task<ActionResult<List<DoctorDTO>>> GetByEspecialidadAsync(string especialidad)
+        [HttpGet("{doctorID}")]
+        public async Task<IActionResult> ObtenerDoctor(int doctorID)
         {
-            var formattedSpecialty = especialidad.ToLower().Replace(" ", "-");
-            var doctores = await _db.Doctores
-                .Include(d => d.Especialidad)
-                .Where(d => d.Especialidad.Nombre.ToLower().Replace(" ", "-") == formattedSpecialty)
-                .Select(d => new FiltroEspecialidadDTO
-                {
-                    DoctorID = d.DoctorID,
-                    NombreCompleto = $"{d.Apellido}, {d.Nombre}",
-                })
-                .ToListAsync();
-            return Ok(new { Especialidad = especialidad, Doctores = doctores });
-        }
 
-        // AGREGAR DOCTOR
+            var doctor = await _doctorService.ObtenerDoctorAsync(doctorID);
+            
+            if (doctor is null) return NotFound("El doctor no existe.");
+            
+            return Ok(doctor);
+        }
 
         [HttpPost("agregar")]
-        public async Task<ActionResult<DoctorInputDTO>> PostDoctor([FromBody] DoctorInputDTO doctor)
+        public async Task<IActionResult> CrearDoctor([FromBody] DoctorInputDTO nuevoDoctor)
         {
-            var especialidad = await _dataVerifier.ObtenerEspecialidad(doctor.Especialidad);
-            if (especialidad is null)
-            {
-                return BadRequest($"La especialidad '{doctor.Especialidad}' no existe.");
-            }
-            bool existeDoctor = await _dataVerifier.DoctorExiste(doctor);
-            if (existeDoctor)
-            {
-                return BadRequest($"El doctor ya existe.");
-            }
-            var nuevoDoctor = new Doctor
-            {
-                Nombre = doctor.Nombre,
-                Apellido = doctor.Apellido,
-                EspecialidadID = especialidad.EspecialidadID,
-            };
+            
+            var nuevoRegistro = await _doctorService.CrearDoctorAsync(nuevoDoctor);
+            
+            if (nuevoRegistro is null) return BadRequest("La especialidad no es válida o el doctor ya se encuentra registrado.");
 
-            _db.Doctores.Add(nuevoDoctor);
-            await _db.SaveChangesAsync();
-
-            return Ok($"Se ha agregado el registro '{doctor.Apellido}, {doctor.Nombre}' a la base de datos.");
+            return CreatedAtAction(nameof(ObtenerDoctor), new { doctorID = nuevoRegistro.DoctorID }, nuevoRegistro);
         }
 
-        // EDITAR MÉDICO
-        [HttpPut("editar/{doctorId}")]
-        public async Task<ActionResult<DoctorDTO>> PutDoctor(int doctorId, [FromBody] EditarDoctorDTO doctor)
+        [HttpPut("editar/{doctorID}")]
+        public async Task<IActionResult> EditarDoctor(int doctorID, [FromBody] EditarDoctorDTO actualizacion)
         {
-            var doctorExistente = await _db.Doctores.FindAsync(doctorId);
-            if (doctorExistente is null)
-            {
-                return NotFound("El doctor no existe.");
-            }
+            var regitroEditado = await _doctorService.EditarDoctorAsync(doctorID, actualizacion);
+            if (regitroEditado is null) return BadRequest("Error al actualizar: La especialidad no es válida o el doctor no existe.");
 
-            doctorExistente.Nombre = doctor.Nombre;
-            doctorExistente.Apellido = doctor.Apellido;
-
-            await _db.SaveChangesAsync();
-
-            return Ok($"Doctor actualizado: '{doctor.Apellido}, {doctor.Nombre}'");
+            return Ok(regitroEditado);
         }
 
-        // EDITAR ESPECIALIDAD MÉDICO
-        [HttpPut("editar-especialidad/{doctorId}")]
-        public async Task<ActionResult<DoctorDTO>> PutEspecialidadDoctor(int doctorId, [FromBody] EditarEspecialidadDTO doctor)
+        [HttpDelete("{doctorID}")]
+        public async Task<IActionResult> EliminarDoctor(int doctorID)
         {
-            var doctorExistente = await _db.Doctores.FindAsync(doctorId);
-            if (doctorExistente is null)
-            {
-                return NotFound("El doctor no existe.");
-            }
-
-            bool especialidadExiste = await _dataVerifier.EspecialidadExiste(doctor.Especialidad);
-            if (!especialidadExiste)
-            {
-                return BadRequest($"La especialidad '{doctor.Especialidad}' no existe.");
-            }
-
-            doctorExistente.Especialidad.Nombre = doctor.Especialidad;
-
-            await _db.SaveChangesAsync();
-
-            return Ok($"Especialidad actualizada: '{doctor.Especialidad}'");
-        }
-
-        // ELIMINAR MÉDICO
-
-        [HttpDelete("eliminar/{doctorId}")]
-        public async Task<ActionResult> DeleteDoctor(int doctorId)
-        {
-            var doctorExistente = await _db.Doctores.FindAsync(doctorId);
-            if (doctorExistente is null)
-            {
-                return NotFound("El doctor no existe.");
-            }
-            _db.Doctores.Remove(doctorExistente);
-            await _db.SaveChangesAsync();
+            var eliminado = await _doctorService.EliminarDoctorAsync(doctorID);
+            if (!eliminado) return NotFound();
 
             return NoContent();
         }

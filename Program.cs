@@ -1,6 +1,8 @@
 using MedicAppAPI.Data;
+using MedicAppAPI.Interfaces;
 using MedicAppAPI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DataVerifier>();
+builder.Services.AddScoped<IDoctor, DoctorService>();
 
 builder.Services.AddDbContext<MedicAppDb>(option =>
 {
