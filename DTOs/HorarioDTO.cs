@@ -5,6 +5,7 @@ namespace MedicAppAPI.DTOs
 {
     public class HorarioDTO
     {   
+        public int DoctorID { get; set; }
         public string Doctor { get; set; }
         public List<DetalleHorarioDTO> Detalle { get; set; }
 
@@ -28,10 +29,5 @@ namespace MedicAppAPI.DTOs
     {
         public string? Inicio { get; set; }
         public string? Fin { get; set; }
-    }
-
-    public class ModificarDuraciónDTO
-    {
-        public string Duración { get; set; }
     }
 }

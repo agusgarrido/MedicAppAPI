@@ -8,8 +8,8 @@ namespace MedicAppAPI.Interfaces
     {
         Task<IEnumerable<DoctorDTO>> ObtenerTodosAsync();
         Task<DoctorDTO> ObtenerDoctorAsync(int doctorID);
-        Task<DoctorDTO> CrearDoctorAsync([FromBody] DoctorInputDTO nuevoDoctor);
-        Task<DoctorDTO> EditarDoctorAsync(int doctorID, [FromBody] EditarDoctorDTO doctorActualizado);
+        Task<DoctorDTO> CrearDoctorAsync(DoctorInputDTO nuevoDoctor);
+        Task<DoctorDTO> EditarDoctorAsync(int doctorID,EditarDoctorDTO doctorActualizado);
         Task<bool> EliminarDoctorAsync(int doctorID);
     }
 }

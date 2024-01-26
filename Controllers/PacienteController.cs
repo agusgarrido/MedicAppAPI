@@ -1,5 +1,6 @@
 ﻿using MedicAppAPI.Data;
 using MedicAppAPI.DTOs;
+using MedicAppAPI.Interfaces;
 using MedicAppAPI.Models;
 using MedicAppAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -15,126 +16,53 @@ namespace MedicAppAPI.Controllers
 
         private readonly MedicAppDb _db;
         private readonly DataVerifier _dataVerifier;
+        private readonly IPaciente _pacienteService;
 
-        public PacienteController(MedicAppDb db, DataVerifier dataVerifier)
+        public PacienteController(MedicAppDb db, DataVerifier dataVerifier, IPaciente pacienteService)
         {
             _db = db;
             _dataVerifier = dataVerifier;
+            _pacienteService = pacienteService;
         }
-
-        // OBTENER TODOS
 
         [HttpGet]
-        public async Task<ActionResult<List<PacienteDTO>>> GetAllAsync()
+        public async Task<IActionResult> ObtenerTodos()
         {
-            var pacientes = await _db.Pacientes
-                .Select(p => new PacienteDTO
-                {
-                    PacienteID = p.PacienteID,
-                    NombreCompleto = $"{p.Apellido}, {p.Nombre}",
-                    DNI = p.DNI,
-                    Contacto = p.Contacto,
-                    Correo = p.Correo
-
-                }).
-                ToListAsync();
-            return Ok(pacientes);
+            return Ok(await _pacienteService.ObtenerTodosAsync());
         }
 
-        // OBTENER POR DNI
-
-        [HttpGet("buscar/{pacienteDNI}")]
-        public async Task<ActionResult<PacienteDTO>> GetByDNIAsync(string dni)
+        [HttpGet("{pacienteID}")]
+        public async Task<IActionResult> ObtenerPaciente(int pacienteID)
         {
-            var paciente = await _db.Pacientes
-                .FirstOrDefaultAsync(p => p.DNI == dni);
-
-            if (paciente is null)
-            {
-                return NotFound("Paciente no encontrado.");
-            }
-
-            var pacienteEncontrado = new PacienteDTO
-            {
-                PacienteID = paciente.PacienteID,
-                NombreCompleto = $"{paciente.Apellido}, {paciente.Nombre}",
-                DNI = paciente.DNI,
-                Contacto = paciente.Contacto,
-                Correo = paciente.Correo
-            };
-
-            return Ok(pacienteEncontrado);
+            var paciente = await _pacienteService.ObtenerPacienteAsync(pacienteID);
+            if (paciente is null) return NotFound("El paciente no existe.");
+            return Ok(paciente);
         }
 
-        // CREAR PACIENTE
         [HttpPost("agregar")]
-        public async Task<ActionResult<PacienteInputDTO>> PostPaciente([FromBody] PacienteInputDTO paciente)
+        public async Task<IActionResult> CrearPaciente([FromBody] PacienteInputDTO nuevoPaciente)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var nuevoRegistro = await _pacienteService.CrearPacienteAsync(nuevoPaciente);
+            if (nuevoRegistro is null) return BadRequest("El paciente ya existe.");
 
-            bool pacienteExiste = await _dataVerifier.PacienteExiste(paciente.DNI);
-            if (pacienteExiste)
-            {
-                return BadRequest("El paciente ya existe.");
-            }
-            var nuevoPaciente = new Paciente
-            {
-                Nombre = paciente.Nombre,
-                Apellido = paciente.Apellido,
-                DNI = paciente.DNI,
-                Contacto = paciente.Contacto,
-                Correo = paciente.Correo
-            };
-
-            _db.Pacientes.Add(nuevoPaciente);
-            await _db.SaveChangesAsync();
-
-            return Ok($"Se ha agregado el registro '{paciente.Apellido}, {paciente.Nombre} (DNI: {paciente.DNI})' a la base de datos.");
+            return CreatedAtAction(nameof(ObtenerPaciente), new {pacienteID = nuevoRegistro.PacienteID }, nuevoRegistro);
         }
 
-        // EDITAR PACIENTE
-
-        [HttpPut("editar/{pacienteDNI}")]
-        public async Task<ActionResult<EditarPacienteDTO>> PutPaciente(string pacienteDNI, [FromBody] EditarPacienteDTO pacienteEditado)
+        [HttpPut("editar/{pacienteID}")]
+        public async Task<IActionResult> EditarPaciente(int pacienteID, [FromBody] EditarPacienteDTO pacienteActualizado)
         {
-            bool pacienteExiste = await _dataVerifier.PacienteExiste(pacienteDNI);
-            if (!pacienteExiste)
-            {
-                return BadRequest("El paciente no existe.");
-            }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var registro = await _dataVerifier.ObtenerPaciente(pacienteDNI);
+            var pacienteEditado = await _pacienteService.EditarPacienteAsync(pacienteID, pacienteActualizado);
+            if (pacienteEditado is null) return NotFound("El paciente no existe.");
 
-            registro.Nombre = pacienteEditado.Nombre ?? registro.Nombre;
-            registro.Apellido = pacienteEditado.Apellido ?? registro.Apellido;
-            registro.DNI = pacienteEditado.DNI ?? registro.DNI;
-            registro.Contacto = pacienteEditado.Contacto ?? registro.Contacto;
-            registro.Correo = pacienteEditado.Correo ?? registro.Correo;
-
-            await _db.SaveChangesAsync();
-            return Ok($"Paciente DNI {registro.DNI} actualizado.");
+            return Ok(pacienteEditado);
         }
 
-        // ELIMINAR UN PACIENTE
-
-        [HttpDelete("eliminar/{pacienteDNI}")]
-        public async Task<ActionResult> DeletePaciente(string pacienteDNI)
+        [HttpDelete("eliminar/{pacienteID}")]
+        public async Task<IActionResult> EliminarPaciente (int pacienteID)
         {
-            var pacienteExistente = await _dataVerifier.ObtenerPaciente(pacienteDNI);
-            if(pacienteExistente is null)
-            {
-                return NotFound("El paciente no existe.");
-            }
-            _db.Pacientes.Remove(pacienteExistente);
+            var pacienteEliminado = await _pacienteService.EliminarPacienteAsync(pacienteID);
+            if (!pacienteEliminado) return NotFound();
             
-            await _db.SaveChangesAsync();
-
             return NoContent();
         }
     }

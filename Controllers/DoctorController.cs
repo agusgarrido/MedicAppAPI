@@ -59,10 +59,10 @@ namespace MedicAppAPI.Controllers
         [HttpPut("editar/{doctorID}")]
         public async Task<IActionResult> EditarDoctor(int doctorID, [FromBody] EditarDoctorDTO actualizacion)
         {
-            var regitroEditado = await _doctorService.EditarDoctorAsync(doctorID, actualizacion);
-            if (regitroEditado is null) return BadRequest("Error al actualizar: La especialidad no es válida o el doctor no existe.");
+            var doctorEditado = await _doctorService.EditarDoctorAsync(doctorID, actualizacion);
+            if (doctorEditado is null) return BadRequest("Error al actualizar: La especialidad no es válida o el doctor no existe.");
 
-            return Ok(regitroEditado);
+            return Ok(doctorEditado);
         }
 
         [HttpDelete("{doctorID}")]

@@ -50,7 +50,7 @@ namespace MedicAppAPI.Services
             };
         }
 
-        public async Task<DoctorDTO> CrearDoctorAsync([FromBody] DoctorInputDTO nuevoDoctor)
+        public async Task<DoctorDTO> CrearDoctorAsync(DoctorInputDTO nuevoDoctor)
         {
             var especialidad = await DevolverEspecialidad(nuevoDoctor.Especialidad);
             if (especialidad is null) return null;
@@ -78,7 +78,7 @@ namespace MedicAppAPI.Services
             return doctorDTO;
         }
 
-        public async Task<DoctorDTO> EditarDoctorAsync(int doctorID, [FromBody] EditarDoctorDTO actualizacion)
+        public async Task<DoctorDTO> EditarDoctorAsync(int doctorID, EditarDoctorDTO actualizacion)
         {
             var doctor = await _db.Doctores
                 .Include(d => d.Especialidad)

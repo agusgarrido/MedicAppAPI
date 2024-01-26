@@ -15,6 +15,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<DataVerifier>();
 builder.Services.AddScoped<IDoctor, DoctorService>();
+builder.Services.AddScoped<IEspecialidad, EspecialidadService>();
+builder.Services.AddScoped<IPaciente, PacienteService>();
+builder.Services.AddScoped<IHorario, HorarioService>();
 
 builder.Services.AddDbContext<MedicAppDb>(option =>
 {

@@ -1,5 +1,6 @@
 ﻿using MedicAppAPI.Data;
 using MedicAppAPI.DTOs;
+using MedicAppAPI.Interfaces;
 using MedicAppAPI.Models;
 using MedicAppAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -16,78 +17,44 @@ namespace MedicAppAPI.Controllers
 
         private readonly MedicAppDb _db;
         private readonly DataVerifier _dataVerifier;
+        private readonly IEspecialidad _especialidadService;
 
-        public EspecialidadController(MedicAppDb db, DataVerifier dataVerifier)
+        public EspecialidadController(MedicAppDb db, DataVerifier dataVerifier, IEspecialidad especialidadService)
         {
             _db = db;
             _dataVerifier = dataVerifier;
+            _especialidadService = especialidadService;
         }
 
-        // OBTENER TODOS
-
         [HttpGet]
-        public async Task<ActionResult<List<Especialidad>>> GetAllAsync()
+        public async Task<IActionResult> ObtenerTodas()
         {
-            var especialidades = await _db.Especialidades
-                .Select(e => new Especialidad
-                {
-                    EspecialidadID = e.EspecialidadID,
-                    Nombre = e.Nombre
-                })
-                .ToListAsync();
-            return Ok(especialidades);
+            return Ok( await _especialidadService.ObtenerTodasAsync());
         }
 
         [HttpPost("agregar")]
-        public async Task<ActionResult<EspecialidadDTO>> PostEspecialidad([FromBody] EspecialidadDTO especialidad)
+        public async Task<IActionResult> CrearEspecialidad([FromBody] EspecialidadInputDTO nuevaEspecialidad)
         {
-            bool especialidadExiste = await _dataVerifier.EspecialidadExiste(especialidad.Nombre);
-            if (especialidadExiste)
-            {
-                return BadRequest($"La especialidad '{especialidad}' ya existe.");
-            }
+            var nuevoRegistro = await _especialidadService.CrearEspecialidadAsync(nuevaEspecialidad);
+            if (nuevoRegistro is null) return BadRequest("La especialidad ya existe.");
 
-            var nuevaEspecialidad = new Especialidad
-            {
-                Nombre = especialidad.Nombre
-            };
-
-            _db.Especialidades.Add(nuevaEspecialidad);
-            await _db.SaveChangesAsync();
-
-            return Ok($"Nueva especialidad agregada: {nuevaEspecialidad}");
+            return Ok(nuevoRegistro);
         }
 
-        // EDITAR ESPECIALIDAD
-        [HttpPut("editar/{especialidadId}")]
-        public async Task<ActionResult> PutEspecialidad(int especialidadId, [FromBody] EspecialidadDTO especialidad)
+        [HttpPut("editar/{especialidadID}")]
+        public async Task<IActionResult> EditarEspecialidad(int especialidadID, [FromBody] EspecialidadInputDTO especialidadActualizada)
         {
-            var especialidadExistente = await _db.Especialidades.FindAsync(especialidadId);
-            if (especialidadExistente is null)
-            {
-                return NotFound("La especialidad no existe.");
-            }
+            var registroEditado = await _especialidadService.EditarEspecialidadAsync(especialidadID, especialidadActualizada);
+            if (registroEditado is null) return BadRequest("La especialidad no existe o el valor proporcionado es nulo.");
 
-            especialidadExistente.Nombre = especialidad.Nombre;
-            
-            await _db.SaveChangesAsync();
-
-            return Ok($"Especialidad editada: {especialidad.Nombre}");
+            return Ok(registroEditado);
         }
-        
-        // ELIMINAR ESPECIALIDAD
 
-        [HttpDelete("eliminar/{especialidadId}")]
-        public async Task<ActionResult> DeleteEspecialidad(int especialidadId)
+        [HttpDelete("eliminar/{especialidadID}")]
+        public async Task<IActionResult> EliminarEspecialidad(int especialidadID)
         {
-            var especialidadExiste = await _db.Especialidades.FindAsync(especialidadId);
-            if (especialidadExiste is null)
-            {
-                return NotFound("La especialidad no existe.");
-            }
-            _db.Especialidades.Remove(especialidadExiste);
-            await _db.SaveChangesAsync();
-
+            var eliminado = await _especialidadService.EliminarEspecialidadAsync(especialidadID);
+            if (!eliminado) return NotFound();
             return NoContent();
         }
     }
